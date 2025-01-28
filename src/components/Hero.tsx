@@ -18,7 +18,7 @@ export function Hero() {
         </p>
         <div className="mt-10 flex justify-center gap-x-6">
           <a
-            href="#"
+            href="/sign-up"
             className="rounded-xl bg-indigo-600 px-8 py-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
             Get Started

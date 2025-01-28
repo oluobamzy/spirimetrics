@@ -7,4 +7,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    watch: {
+      usePolling: true, // Use this if hot reload doesn't work due to file system issues
+    },
+  },
 });
