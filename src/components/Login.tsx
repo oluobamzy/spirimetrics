@@ -3,12 +3,13 @@ import {Navigation} from "./Navigation";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext.tsx";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth(); // Get login function from context
 
  const [error, setError] = useState("");
- const [success, setSuccess] = useState("");
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -20,23 +21,8 @@ const Login = () => {
     e.preventDefault();
     // console.log(data);
     try{
-      const result = await fetch("http://localhost:3000/auth/login",{
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      const response = await result.json();
-
-      if(result.ok){
-        setSuccess(response.message || "Login successful!");
-        toast.success(response.message || "Login successful! 🎉");
-
-      setData({
-        email: "",
-        password: "",
-      })
+      
+      await login(data.email, data.password);
      
       // Wait for 5 seconds before redirecting
       setTimeout(() => {
@@ -44,16 +30,14 @@ const Login = () => {
         navigate("/");
       }, 5000);
     }
-    else{
-      setError(response.error || response.message || "Something went wrong!");
-      toast.error(response.error || response.message || "Login failed! 😢");
-    }
-
-    }
     catch (err) {
       console.error(err);
       setError("A network error occurred. Please try again later.");
-      toast.error("A network error occurred. Please try again later.");
+      if (err instanceof Error) {
+        toast.error(err.message || "Login failed! 😢");
+      } else {
+        toast.error("Login failed! 😢");
+      }
     }
     
   };

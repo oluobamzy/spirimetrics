@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import {useAuth} from '../contexts/AuthContext.tsx';
 
 export function Navigation() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const { user, logout } = useAuth(); // Get user & logout function from AuthContext
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   return (
     <header className="absolute inset-x-0 top-0 z-50">
       <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
+
         <div className="flex lg:flex-1">
           <a href="#" className="-m-1.5 p-1.5">
             <span className="text-2xl font-bold text-indigo-600">Spirimetrics</span>
@@ -32,13 +36,27 @@ export function Navigation() {
           <a href="#about" className="text-sm font-semibold leading-6 text-gray-900">About</a>
           <a href="#contact" className="text-sm font-semibold leading-6 text-gray-900">Contact</a>
         </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="login" className="text-sm font-semibold leading-6 text-gray-900">
-            Log in <span aria-hidden="true">→</span>
-          </a>
-        </div>
+        {user ? (
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-3">
+            <span className="text-sm font-semibold leading-6 text-gray-900">
+              {user.email} </span>
+            <button
+              type="button"
+              className="text-sm font-semibold leading-6 text-gray-900"
+              onClick={logout}
+            >
+              Log out
+            </button>
+          </div>
+        ) : (
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+            <a href="/login" className="text-sm font-semibold leading-6 text-gray-900">
+              Log in <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        )}
       </nav>
-      
+
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden">

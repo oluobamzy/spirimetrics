@@ -1,11 +1,12 @@
+import cookieParser from 'cookie-parser';
 import User from '../models/User.js';
-
-
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+dotenv.config();
 
 const handleErrors = (err) => {
   // console.log(err.message, err.code);
   let errors = { email: '', password: '', first_name: '', last_name: '' };
-
   // //incorrect email
   if (err.message === 'incorrect email') {
     errors.email = 'That email is not registered';
@@ -66,9 +67,31 @@ const loginPost = async (req, res) => {
   const { email, password } = req.body;
   // console.log(Email: ${email}, Password: ${password});
   //compare the password submitted with the password in the database and email in the database
+  // const cookieOptions = {
+  //   httpOnly: true,
+  //   maxAge: 24 * 60 * 60 * 1000, // 1 day
+  //   secure: process.env.NODE_ENV === 'production', // Secure cookies in production
+  // };
+  
   try {
     const user = await User.login(email,password);
-    res.status(200).json({ user: user});
+    // Generate a JWT
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d', // Token expiration
+    });
+     console.log("token after generation==========>",token)
+    // Set the token in an HTTP-only cookie
+    res.cookie('jwt', token, {
+      httpOnly: true, // Prevents access from JavaScript
+      // secure: process.env.NODE_ENV === 'production', // Only HTTPS in production
+      secure: false,
+      sameSite: 'Strict', // Prevent CSRF attacks
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    console.log("user===========>", {user: { id: user._id, email: user.email }});
+
+    res.status(200).json({ user: { id: user._id, email: user.email } });//send the user data back to the client
 
   }
   catch (err) {
@@ -78,15 +101,16 @@ const loginPost = async (req, res) => {
 
 };
 
-// const profileGet =   (req, res) => {
-//     res.send(JSON.stringify(req.oidc.user));
-//   };
+const logoutPost = async(req, res) => {
+  res.cookie('jwt', '', { maxAge: 1 }); // Clear the cookie
+  res.json({ message: 'Logged out successfully' });
+};
 
 
 export default {
   // signUpGet,
   //  loginGet,
-  // profileGet,
+  logoutPost,
   signUpPost,
   loginPost
 };
